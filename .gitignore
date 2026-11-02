@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# sekrety, nigdy na GitHuba
+.env
+
+# ustawienia Claude Code
+.claude/
