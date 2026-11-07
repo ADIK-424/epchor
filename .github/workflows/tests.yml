@@ -1,0 +1,72 @@
+name: Testy projektu ePchor
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    name: Testy backendu
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: epchor
+          POSTGRES_PASSWORD: epchor_dev
+          POSTGRES_DB: epchor
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U epchor -d epchor"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Pobranie kodu
+        uses: actions/checkout@v4
+
+      - name: Konfiguracja Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Instalacja bibliotek
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Utworzenie tabel w bazie
+        run: |
+          PGPASSWORD=epchor_dev psql -h localhost -U epchor -d epchor -f backend/schema.sql
+
+      - name: Backend tests
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://epchor:epchor_dev@localhost:5432/epchor
+        run: pytest -v
+
+  flutter:
+    name: Testy Flutter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobranie kodu
+        uses: actions/checkout@v4
+
+      - name: Konfiguracja Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Get Flutter dependencies
+        working-directory: mobile
+        run: flutter pub get
+
+      - name: Flutter tests
+        working-directory: mobile
+        run: flutter test
