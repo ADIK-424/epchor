@@ -9,9 +9,9 @@ class PanelPchora extends StatefulWidget {
 }
 
 class _PanelPchoraState extends State<PanelPchora> {
-  int _zakladka = 0; // która zakładka jest wybrana (0 = Start)
+  int _zakladka = 2; //zakladka startowa
 
-  static const _tytuly = ['Start', 'Plan zajęć', 'Służby', 'Wnioski', 'Profil'];
+  static const _tytuly = ['Służby', 'Wnioski', 'Start', 'Plan zajęć', 'Profil'];
 
   @override
   Widget build(BuildContext context) {
@@ -23,20 +23,20 @@ class _PanelPchoraState extends State<PanelPchora> {
         onDestinationSelected: (i) => setState(() => _zakladka = i),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            label: 'Start',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Plan',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.shield_outlined),
             label: 'Służby',
           ),
           NavigationDestination(
             icon: Icon(Icons.description_outlined),
             label: 'Wnioski',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            label: 'Start',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_today_outlined),
+            label: 'Plan',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
