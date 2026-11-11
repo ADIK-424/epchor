@@ -9,3 +9,6 @@ __pycache__/
 
 # ustawienia Claude Code
 .claude/
+
+# Android Studio
+.idea/
