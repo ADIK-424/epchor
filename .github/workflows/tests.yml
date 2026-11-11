@@ -48,6 +48,11 @@ jobs:
         working-directory: backend
         env:
           DATABASE_URL: postgresql://epchor:epchor_dev@localhost:5432/epchor
+          JWT_SECRET_KEY: ci-test-only-secret-key-do-not-use-in-production-123456789
+          ADMIN_EMAIL: admin@epchor.local
+          ADMIN_PASSWORD: CI-only-password-12345
+          ADMIN_FIRST_NAME: Administrator
+          ADMIN_LAST_NAME: ePchor
         run: pytest -v
 
   flutter:
