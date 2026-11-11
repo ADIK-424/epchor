@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'pchor.dart';
+import 'logowanie.dart';
 
 const kolorGranat = Color(0xFF14213D);
 const kolorCzerwony = Color(0xFFDC143C);
@@ -35,7 +35,7 @@ class EpchorApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const PanelPchora(),
+      home: const EkranLogowania(),
     );
   }
 }
