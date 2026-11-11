@@ -30,9 +30,7 @@ class BladApi implements Exception {
 }
 
 Future<List<Kompania>> pobierzKompanie() async {
-  final odp = await http.get(Uri.parse('$adresApi/companies'));
-  _sprawdz(odp);
-  final lista = jsonDecode(utf8.decode(odp.bodyBytes)) as List;
+  final lista = await _get('/companies') as List;
   return [
     for (final k in lista) Kompania(k['id'], k['number'], k['battalion']),
   ];
@@ -40,8 +38,7 @@ Future<List<Kompania>> pobierzKompanie() async {
 
 // Loguje i zwraca rolę: PCHOR, DCA_KP albo DCA_JEDN.
 Future<String> zaloguj(String email, String haslo) async {
-  final odp = await _post('/login', {'email': email, 'password': haslo});
-  final dane = jsonDecode(utf8.decode(odp.bodyBytes));
+  final dane = await _post('/login', {'email': email, 'password': haslo});
   token = dane['access_token'];
   return dane['role'];
 }
@@ -68,24 +65,51 @@ Future<void> zarejestruj({
   });
 }
 
-Future<http.Response> _post(String sciezka, Map<String, dynamic> dane) async {
-  final odp = await http.post(
-    Uri.parse('$adresApi$sciezka'),
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode(dane),
-  );
-  _sprawdz(odp);
-  return odp;
+// Konta czekające na zatwierdzenie przez zalogowanego dowódcę.
+Future<List<Map<String, dynamic>>> pobierzOczekujace() async {
+  final lista = await _get('/pending') as List;
+  return lista.cast<Map<String, dynamic>>();
 }
 
-// Jeśli backend odpowiedział błędem (kod 400 i wyżej), rzuca BladApi z jego komunikatem.
-void _sprawdz(http.Response odp) {
-  if (odp.statusCode < 400) return;
+Future<void> zatwierdzKonto(int id) => _post('/users/$id/approve', {});
+
+Future<void> odrzucKonto(int id) => _post('/users/$id/reject', {});
+
+// ---------------------------------------------------------------- pomocnicze
+
+// Nagłówki każdego zapytania. Po zalogowaniu dochodzi token.
+Map<String, String> get _naglowki => {
+  'Content-Type': 'application/json',
+  if (token != null) 'Authorization': 'Bearer $token',
+};
+
+Future<dynamic> _get(String sciezka) async {
+  final odp = await http.get(
+    Uri.parse('$adresApi$sciezka'),
+    headers: _naglowki,
+  );
+  return _odpowiedz(odp);
+}
+
+Future<dynamic> _post(String sciezka, Map<String, dynamic> dane) async {
+  final odp = await http.post(
+    Uri.parse('$adresApi$sciezka'),
+    headers: _naglowki,
+    body: jsonEncode(dane),
+  );
+  return _odpowiedz(odp);
+}
+
+// Zwraca odczytany JSON albo rzuca BladApi, jeśli backend odpowiedział błędem.
+dynamic _odpowiedz(http.Response odp) {
+  final tresc = jsonDecode(utf8.decode(odp.bodyBytes));
+  if (odp.statusCode < 400) return tresc;
+
   var komunikat = 'Błąd serwera (${odp.statusCode}).';
-  try {
-    final detail = jsonDecode(utf8.decode(odp.bodyBytes))['detail'];
+  if (tresc is Map) {
+    final detail = tresc['detail'];
     if (detail is String) komunikat = detail;
     if (detail is List) komunikat = 'Sprawdź wpisane dane.';
-  } catch (_) {}
+  }
   throw BladApi(komunikat);
 }
