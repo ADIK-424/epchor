@@ -2,3 +2,5 @@ fastapi[standard]
 psycopg[binary]
 python-dotenv
 pytest
+pwdlib[argon2]
+PyJWT
