@@ -9,6 +9,15 @@ import 'pchor.dart';
 String opisBledu(Object e) =>
     e is BladApi ? e.komunikat : 'Brak połączenia z serwerem.';
 
+// Usuwa token i wraca do logowania, czyszcząc historię ekranów.
+void wyloguj(BuildContext context) {
+  token = null;
+  Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (_) => const EkranLogowania()),
+    (_) => false,
+  );
+}
+
 String? _wymagane(String? w) =>
     (w == null || w.trim().isEmpty) ? 'Pole wymagane' : null;
 

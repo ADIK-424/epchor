@@ -1,6 +1,8 @@
 // Panel podchorążego
 import 'package:flutter/material.dart';
 
+import 'logowanie.dart';
+
 class PanelPchora extends StatefulWidget {
   const PanelPchora({super.key});
 
@@ -16,7 +18,16 @@ class _PanelPchoraState extends State<PanelPchora> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_tytuly[_zakladka])),
+      appBar: AppBar(
+        title: Text(_tytuly[_zakladka]),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Wyloguj',
+            onPressed: () => wyloguj(context),
+          ),
+        ],
+      ),
       body: Center(child: Text('Tu będzie: ${_tytuly[_zakladka]}')),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _zakladka,
