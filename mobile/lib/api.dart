@@ -26,8 +26,9 @@ class Kompania {
 // Błąd zwrócony przez backend, z komunikatem do pokazania użytkownikowi.
 class BladApi implements Exception {
   final String komunikat;
+  final int kod; // kod HTTP, np. 401 = trzeba się zalogować od nowa
 
-  BladApi(this.komunikat);
+  BladApi(this.komunikat, [this.kod = 0]);
 
   @override
   String toString() => komunikat;
@@ -241,5 +242,5 @@ dynamic _odpowiedz(http.Response odp) {
     if (detail is String) komunikat = detail;
     if (detail is List) komunikat = 'Sprawdź wpisane dane.';
   }
-  throw BladApi(komunikat);
+  throw BladApi(komunikat, odp.statusCode);
 }

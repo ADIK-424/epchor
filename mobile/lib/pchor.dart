@@ -108,9 +108,21 @@ class Wczytywanie<T> extends StatelessWidget {
       future: dane,
       builder: (context, stan) {
         if (stan.hasError) {
+          final blad = stan.error!;
           return Padding(
             padding: const EdgeInsets.all(16),
-            child: Text(opisBledu(stan.error!)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(opisBledu(blad)),
+                // token wygasł albo konto zablokowane - wracamy do logowania
+                if (blad is BladApi && blad.kod == 401)
+                  TextButton(
+                    onPressed: () => wyloguj(context),
+                    child: const Text('Zaloguj ponownie'),
+                  ),
+              ],
+            ),
           );
         }
         if (!stan.hasData) {
@@ -196,10 +208,17 @@ class Przelacznik extends StatelessWidget {
       children: [
         IconButton(onPressed: wstecz, icon: const Icon(Icons.chevron_left)),
         Expanded(
-          child: TextButton(
-            onPressed: naKlik,
-            child: Text(tekst, style: const TextStyle(fontSize: 16)),
-          ),
+          // TextButton tylko gdy da się kliknąć (plan), inaczej zwykły tekst - nie jest wyszarzony
+          child: naKlik == null
+              ? Text(
+                  tekst,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                )
+              : TextButton(
+                  onPressed: naKlik,
+                  child: Text(tekst, style: const TextStyle(fontSize: 16)),
+                ),
         ),
         IconButton(onPressed: dalej, icon: const Icon(Icons.chevron_right)),
       ],
