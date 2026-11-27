@@ -177,10 +177,11 @@ def zalogowany(dane: HTTPAuthorizationCredentials = Depends(naglowek_tokenu)):
     with polacz() as conn:
         w = conn.execute(
             """
-            SELECT id, email, role, first_name, last_name,
-                   rank, study_group, company_id, status
-            FROM users
-            WHERE id = %s
+            SELECT u.id, u.email, u.role, u.first_name, u.last_name,
+                   u.rank, u.study_group, u.company_id, u.status, c.number
+            FROM users u
+            LEFT JOIN companies c ON c.id = u.company_id
+            WHERE u.id = %s
             """,
             (payload["user_id"],)
         ).fetchone()
@@ -196,7 +197,8 @@ def zalogowany(dane: HTTPAuthorizationCredentials = Depends(naglowek_tokenu)):
         "last_name": w[4],
         "rank": w[5],
         "study_group": w[6],
-        "company_id": w[7]
+        "company_id": w[7],
+        "company_number": w[9]
     }
 
 
