@@ -25,6 +25,60 @@ CREATE TABLE IF NOT EXISTS users (
     created_at    TIMESTAMP NOT NULL DEFAULT now()
 );
 
+-- Ogloszenia (company_id = NULL -> dla calej jednostki)
+CREATE TABLE IF NOT EXISTS announcements (
+    id         SERIAL PRIMARY KEY,
+    author_id  INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    company_id INT REFERENCES companies(id),
+    title      TEXT NOT NULL,
+    body       TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+-- Kto przeczytal ktore ogloszenie (stad wiadomo co jest "nowe")
+CREATE TABLE IF NOT EXISTS announcement_reads (
+    user_id         INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    announcement_id INT NOT NULL REFERENCES announcements(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, announcement_id)
+);
+
+-- Grafik sluzb: jeden plik (pdf/excel) na kompanie i miesiac
+CREATE TABLE IF NOT EXISTS duty_schedules (
+    id         SERIAL PRIMARY KEY,
+    company_id INT NOT NULL REFERENCES companies(id),
+    month      INT NOT NULL CHECK (month BETWEEN 1 AND 12),
+    year       INT NOT NULL,
+    file       BYTEA NOT NULL,
+    file_name  TEXT NOT NULL,
+    comment    TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    UNIQUE (company_id, month, year)
+);
+
+-- Wzory wnioskow (pliki .docx wgrywane przez d-ce kp)
+CREATE TABLE IF NOT EXISTS request_templates (
+    id         SERIAL PRIMARY KEY,
+    company_id INT NOT NULL REFERENCES companies(id),
+    name       TEXT NOT NULL,
+    file       BYTEA NOT NULL,
+    file_name  TEXT NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+-- Zlozone wnioski (pdf od pchora do d-cy jego kompanii)
+CREATE TABLE IF NOT EXISTS requests (
+    id         SERIAL PRIMARY KEY,
+    user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    company_id INT NOT NULL REFERENCES companies(id),
+    title      TEXT NOT NULL,
+    file       BYTEA NOT NULL,
+    file_name  TEXT NOT NULL,
+    status     TEXT NOT NULL DEFAULT 'ZŁOŻONY'
+               CHECK (status IN ('ZŁOŻONY', 'ROZPATRYWANY', 'ZAAKCEPTOWANY', 'ODRZUCONY')),
+    comment    TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
 -- Kompanie startowe (my stworzylismy przykladowe dla WAT)
 INSERT INTO companies (number, battalion) VALUES
     (1, 1), (2, 1), (3, 1), (4, 1), (5, 1),
