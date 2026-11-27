@@ -10,4 +10,5 @@ DATABASE_URL = os.environ["DATABASE_URL"]
 
 def polacz():
     """Nowe połączenie z bazą danych"""
-    return psycopg.connect(DATABASE_URL)
+    # strefa czasowa polska - inaczej now() w bazie daje godzinę UTC (o 1-2 h za wcześnie)
+    return psycopg.connect(DATABASE_URL, options="-c timezone=Europe/Warsaw")
