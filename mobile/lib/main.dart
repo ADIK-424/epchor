@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'logowanie.dart';
+import 'powiadomienia.dart';
 
 const kolorGranat = Color(0xFF14213D);
 const kolorCzerwony = Color(0xFFDC143C);
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await przygotujPowiadomienia();
   runApp(const EpchorApp());
 }
 
